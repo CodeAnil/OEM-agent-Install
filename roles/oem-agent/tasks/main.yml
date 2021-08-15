@@ -1,0 +1,38 @@
+---
+# tasks file for oem-agent
+- name: Add the user 'james' with a bash shell, appending the group 'admins' and 'developers' to the user's groups
+  ansible.builtin.user:
+    name: oraagent
+    shell: /bin/bash
+    uid: 50007
+    groups: oinstall,dba,asmdba,asmadmin,developers
+    append: yes
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: /opt/oracle/agent/13.5.0.0
+    state: directory
+    mode: '0755'
+    owner: oragent
+    group: oinstall
+
+- name: Copy file with owner and permissions
+  ansible.builtin.copy:
+    src: agent_core.zip
+    dest: /opt/oracle/agent/13.5.0.0
+    owner: oraagent
+    group: oinstall
+    mode: '0644'
+
+- name: Unzip agent Core.
+  shell: unzip agent_core.zip 
+  args:
+    chdir: /opt/oracle/agent/13.5.0.0
+
+
+- name: installing agent core.
+  shell: ./agentDeploy.sh
+  args:
+    chdir: /opt/oracle/agent/13.5.0.0/agent-core
+
+
